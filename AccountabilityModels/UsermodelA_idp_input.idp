@@ -1,0 +1,1189 @@
+vocabulary voc_accountability {
+// Data categories represents the types of data that is collected from a user
+type DataCategory
+
+// Constants that represents default data categories found in almost every
+// data practice specification of a system
+PD : DataCategory
+PID : DataCategory
+
+// Data categories are ordered --> future extensions
+//  (1)   : Certainly true orders, part of the input model
+//  (2)   : Induced from (1), including transitivity of the order relation
+DataCategoryOf_ct(DataCategory, DataCategory)
+DataCategoryOf(DataCategory, DataCategory)
+  
+//------------------------------------------------------------------------------
+// Section: Stakeholders and components
+//------------------------------------------------------------------------------
+//  (1)   : A system is composed of different entities
+//  (2)   : One set of entities are the stakeholders containing individuals and
+//          organizations
+//  (3)   : The second set of entities are the components that are part of a
+//          system
+//  (4)   : Stakeholders are subdivided into organizations
+//  (5)   : ... and into operators who interact with the components
+type Entity
+type Stakeholder isa Entity
+type Component isa Entity
+type Organization isa Stakeholder
+type Operator isa Stakeholder
+
+// Relations between the entities in a system
+//  (1) : Each components is owned by a single organization
+//  (2) : Each operator is an employee of a single organization
+//  (3) : Operators have access to possibly multiple resources
+//  (4) : An organization possibly delegates tasks to a third-party
+//  (5) : Components have restrictions on their capabilities of collecting
+//        personal data.  For each component, a set of collectable data 
+//        categories must be enumerated.
+ComponentOf(Component) : Organization
+EmployeeOf(Operator) : Organization
+OperatorOf(Operator, Component)
+//DelegatesTaskTo(Organization, Organization)       // ** not yet
+ComponentCanCollect(Component, DataCategory)
+
+//------------------------------------------------------------------------------
+// Section: Statements
+//------------------------------------------------------------------------------
+//  (1)   : Data practice specifications are build from a set of statements
+//  (2)   : Statements can be related to a purpose
+//  (3)   : Statements can be conditional valid
+//  (4)   : Statements can be related to an action
+//  (5)   : Statements can express a retention limit
+//  (6)   : Statements can be valid only for a sub set of stakeholder
+//          categories
+//  (7)   : Statements can have explicit or implicit permissions
+//  (8)   : Statements can be pure declarative, logged but not verified, logged
+//  (9)   : logged and verified by an authority
+type Statement                      
+type Purpose                      // e.g., Statistics
+type Condition                    // e.g., Data is accessed
+type Action                       // e.g., Stored, notified
+type Duration isa int             // e.g.,  30 (days)
+type Permission constructed from { ALWAYS, NEVER }
+type StatementEvidence constructed from { DECLARATIVE, LOGGED_NOT_VERIFIED, LOGGED_AND_VERIFIED }
+
+//ConditionOrder(Condition,Condition)  Possible extension for future work
+
+// Statement relations
+//  (1)   : Each statement is from an entity
+//  (2)   : A statement can have a subjects (data categories).  Statements
+//          having multiple data categories must be split into multiple
+//          statements
+//  (3)   : A statement can have none or multiple purposes
+//  (4)   : A statement can have one or muliple conjunctive conditions under 
+//          which it is valid
+//  (5)   : Each statement has an implicit are explicit permission
+//  (6)   : Possibly, a statement declares to perform a certain action
+//  (7)   : Possibly, the personal data involved in an action has none or 
+//          multiplea destinations (entities).  E.g., forward data to a 
+//          third-party
+//  (8)   : Possibly, a statement declares a retention limit.  Deletion of data
+//          has a special treatment in the model, because it also has a special 
+//          treatment in law
+//  (9)   : Each statement has a evidence status
+StatementFrom(Statement) : Entity
+StatementSubject(Statement,DataCategory)
+StatementPurpose(Statement, Purpose)
+partial StatementCondition(Statement) : Condition
+StatementPermission(Statement) : Permission
+partial StatementAction(Statement) : Action
+StatementDestination(Statement, Organization)
+partial StatementRetentionLimit(Statement) : Duration
+StatementNotificationGuarantee(Statement)
+StatementProof(Statement) : StatementEvidence
+
+//------------------------------------------------------------------------------
+// Section: User model
+//------------------------------------------------------------------------------
+type UserType constructed from { NAIVE_USER, REGULAR_USER, PRIVACY_AWARE_USER }
+TYPE_OF_USER : UserType
+UserTrustDataPracticeOf(Organization)
+
+//------------------------------------------------------------------------------
+// Section: Global Accountability Profile - A WORST-CASE survey for the user
+//------------------------------------------------------------------------------
+type GAPEvidence constructed from { DECLARED, ASSUMED_TRUE }
+
+GAPCollectData(DataCategory)
+GAPCollectDataAction(DataCategory, Action)
+GAPCollectDataForPurposeOf(DataCategory, Purpose)
+GAPCollectDataCondition(DataCategory, Condition)
+GAPCollectDataProof(DataCategory, GAPEvidence)
+
+GAPForwardDataTo(DataCategory, Organization)
+GAPForwardDataToAction(DataCategory, Action)
+GAPForwardDataForPurposeOf(DataCategory, Purpose)
+GAPForwardDataCondition(DataCategory, Condition)
+GAPForwardDataProof(DataCategory, GAPEvidence)
+
+GAPNeverCollectData(DataCategory)
+GAPNeverCollectDataForPurposeOf(DataCategory, Purpose)
+GAPNeverCollectDataCondition(DataCategory, Condition)
+GAPNeverCollectDataProof(DataCategory, GAPEvidence)
+
+GAPNeverForwardDataTo(DataCategory, Organization)
+GAPNeverForwardDataForPurposeOf(DataCategory, Purpose)
+GAPNeverForwardDataCondition(DataCategory, Condition)
+GAPNeverForwardDataProof(DataCategory, GAPEvidence)
+
+GAPNotificationGuarantee(DataCategory)
+GAPNotificationGuaranteeCondition(DataCategory, Condition)
+GAPNotificationGuaranteeProof(DataCategory, GAPEvidence)
+
+GAPRetentionLimit(DataCategory, Duration)
+GAPRetentionLimitCondition(DataCategory, Condition)
+GAPRetentionLimitProof(DataCategory, GAPEvidence)
+
+//------------------------------------------------------------------------------
+// Section: Internal helper predicates
+//------------------------------------------------------------------------------
+OrganizationOwns(Organization, Entity)
+UserTrustEntity(Entity)
+EntityCanCollect(Entity, DataCategory)
+StatementCollectData(Statement)
+StatementForwardData(Statement)
+UserPerceptionStatementData(Statement, DataCategory, Permission)
+SubjectOfStatement(Statement, DataCategory)
+
+NonConditionalCollectDataStatement(Statement, DataCategory)
+NonConditionalForwardDataStatement(Statement, DataCategory)
+NonConditionalNotificationGuaranteeStatement(Statement, DataCategory)
+NonConditionalRetentionLimit(Statement, DataCategory)
+CollectDataForAllPurposeStatement(Statement, DataCategory)
+ForwardDataForAllPurposeStatement(Statement, DataCategory)
+
+EvidenceMatrix(Entity, StatementEvidence, GAPEvidence)
+}
+  
+// GAP statements are worst-cases from the given data practice statements of
+// all entitities involved in the system
+// (1)  Purpose is the union of all purposes
+// (2)  Retention limit is the max of all retention limits
+theory theo_gap : voc_accountability {
+
+//------------------------------------------------------------------------------
+// Computation of the GAP Statements about the data categories that are 
+// collected
+//------------------------------------------------------------------------------
+
+{
+  ! dc :
+      GAPCollectData(dc) <-
+        ? stat :
+            UserPerceptionStatementData(stat,dc,ALWAYS) &
+            StatementCollectData(stat).         
+}
+
+{
+  ! dc act :
+      GAPCollectDataAction(dc,act) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementCollectData(stat) &
+              StatementAction(stat) = act.
+}
+
+// Union of purposes if no statements without purposes exist
+{
+  ! dc purp :
+      GAPCollectDataForPurposeOf(dc,purp) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementCollectData(stat) &
+              StatementPurpose(stat,purp) &
+              ~(? stat_x : CollectDataForAllPurposeStatement(stat_x,dc)).
+}
+
+// Disjunctive conditions if no statements exist without any condition
+{
+  ! dc cond :
+      GAPCollectDataCondition(dc,cond) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementCollectData(stat) &
+              StatementCondition(stat) = cond &
+              ~(? stat_x : NonConditionalCollectDataStatement(stat_x,dc)).
+}
+
+{
+  ! dc :
+      GAPCollectDataProof(dc,DECLARED) <-
+          ? stat ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementCollectData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED).
+              
+  ! dc :  
+      GAPCollectDataProof(dc,ASSUMED_TRUE) <-
+          ? stat ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementCollectData(stat) &              
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              ~GAPCollectDataProof(dc,DECLARED).
+}
+
+
+//------------------------------------------------------------------------------
+// GAP Forward Statement Section
+//------------------------------------------------------------------------------
+{
+  ! dc dst :
+      GAPForwardDataTo(dc,dst) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementForwardData(stat) &
+              StatementDestination(stat,dst).
+}
+
+{
+  ! dc act :
+      GAPForwardDataToAction(dc,act) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementForwardData(stat) &
+              StatementAction(stat) = act.
+}
+
+{
+  ! dc purp :
+      GAPForwardDataForPurposeOf(dc,purp) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementForwardData(stat) &
+              StatementPurpose(stat,purp) &
+              ~(? stat_x : ForwardDataForAllPurposeStatement(stat_x,dc)).
+}
+
+// Disjunctive conditions if no statements exist without any condition
+{
+  ! dc cond :
+      GAPForwardDataCondition(dc,cond) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementForwardData(stat) &
+              StatementCondition(stat) = cond &
+              ~(? stat_x : NonConditionalForwardDataStatement(stat_x,dc)).
+}
+
+{
+  ! dc :
+      GAPForwardDataProof(dc,DECLARED) <-
+          ? stat ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &              
+              StatementForwardData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED).
+  ! dc :
+      GAPForwardDataProof(dc,ASSUMED_TRUE) <-
+          ? stat ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &              
+              StatementForwardData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              ~GAPForwardDataProof(dc,DECLARED).  
+}
+
+
+//------------------------------------------------------------------------------
+// GAP Never Collect Statement Section
+//------------------------------------------------------------------------------
+{
+  ! dc : 
+      GAPNeverCollectData(dc) <-
+          ? stat :              
+              ~(
+                  ? dc_child : 
+                      GAPCollectData(dc_child) &
+                      DataCategoryOf(dc_child,dc)
+              ) &               
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementCollectData(stat).
+}
+
+{
+  ! dc purp :
+      GAPNeverCollectDataForPurposeOf(dc,purp) <-
+          ? stat :
+              GAPNeverCollectData(dc) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementCollectData(stat) &
+              StatementPurpose(stat,purp).  
+}
+
+{
+  ! dc cond :
+      GAPNeverCollectDataCondition(dc,cond) <-
+          ? stat :
+              GAPNeverCollectData(dc) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementCollectData(stat) &
+              StatementCondition(stat) = cond.      
+}
+
+{
+  ! dc :
+      GAPNeverCollectDataProof(dc,DECLARED) <-
+          ? stat ent statev :
+              GAPNeverCollectData(dc) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementCollectData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED).
+              
+  ! dc :
+      GAPNeverCollectDataProof(dc,ASSUMED_TRUE) <-
+          ? stat ent statev :
+              GAPNeverCollectData(dc) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementCollectData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              ~GAPNeverCollectDataProof(dc,DECLARED).
+}
+
+//------------------------------------------------------------------------------
+// GAP Never Forward Statement Section
+//------------------------------------------------------------------------------              
+{
+  ! dc dst[Stakeholder] :
+      GAPNeverForwardDataTo(dc,dst) <-
+          ? stat :
+              ~GAPForwardDataTo(dc,dst) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementForwardData(stat) &
+              StatementDestination(stat,dst).
+}
+
+{
+  ! dc purp :
+      GAPNeverForwardDataForPurposeOf(dc,purp) <-
+          ? stat dst[Stakeholder] :
+              GAPNeverForwardDataTo(dc,dst) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementForwardData(stat) &              
+              StatementPurpose(stat,purp).
+}
+
+{
+  ! dc cond : 
+      GAPNeverForwardDataCondition(dc,cond) <-
+          ? stat dst[Stakeholder] :
+              GAPNeverForwardDataTo(dc,dst) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementForwardData(stat) &
+              StatementCondition(stat) = cond.
+}  
+
+{
+  ! dc :
+      GAPNeverForwardDataProof(dc,DECLARED) <-
+          ? stat dst[Stakeholder] statev ent :
+              GAPNeverForwardDataTo(dc,dst) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementForwardData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED).
+              
+  ! dc :
+      GAPNeverForwardDataProof(dc,ASSUMED_TRUE) <-
+          ? stat dst[Stakeholder] ent statev :
+              GAPNeverForwardDataTo(dc,dst) &
+              UserPerceptionStatementData(stat,dc,NEVER) &
+              StatementForwardData(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              ~GAPNeverForwardDataProof(dc,DECLARED).
+}
+
+//------------------------------------------------------------------------------
+// GAP Notification Guarantee Section
+//------------------------------------------------------------------------------   
+{
+  ! dc :
+      GAPNotificationGuarantee(dc) <-
+          ? stat :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementNotificationGuarantee(stat).
+}
+
+{
+  ! dc cond : 
+      GAPNotificationGuaranteeCondition(dc,cond) <-
+          ? stat : 
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementNotificationGuarantee(stat) &
+              StatementCondition(stat) = cond &
+              ~(? stat_x : NonConditionalNotificationGuaranteeStatement(stat_x,dc)).
+}
+
+{
+  ! dc : 
+      GAPNotificationGuaranteeProof(dc,DECLARED) <-
+          ? stat ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementNotificationGuarantee(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED).
+              
+  ! dc :
+      GAPNotificationGuaranteeProof(dc,ASSUMED_TRUE) <-
+          ? stat ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementNotificationGuarantee(stat) &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              ~GAPNotificationGuaranteeProof(dc,DECLARED).
+}
+
+//------------------------------------------------------------------------------
+// GAP Retention Limit Section
+//------------------------------------------------------------------------------
+{
+  ! dc dur :
+      GAPRetentionLimit(dc,dur) <-          
+              dur = max {
+                  stat[Statement] dur_x[Duration] :
+                      UserPerceptionStatementData(stat,dc,ALWAYS) &
+                      StatementRetentionLimit(stat) = dur_x
+                  : dur_x 
+              }.
+}
+
+{
+  ! dc cond :
+      GAPRetentionLimitCondition(dc,cond) <-
+          ? stat dur[Duration] :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementRetentionLimit(stat) = dur &
+              StatementCondition(stat) = cond.
+}
+
+{
+  ! dc :
+      GAPRetentionLimitProof(dc,DECLARED) <-
+          ? stat dur[Duration] ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementRetentionLimit(stat) = dur &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED).
+       
+  ! dc :
+      GAPRetentionLimitProof(dc,ASSUMED_TRUE) <-
+          ? stat dur[Duration] ent statev :
+              UserPerceptionStatementData(stat,dc,ALWAYS) &
+              StatementRetentionLimit(stat) = dur &
+              StatementFrom(stat) = ent &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              ~GAPRetentionLimitProof(dc,DECLARED).
+}
+              
+}
+
+// Internal computation serving the computations of the GAP
+theory theo_general_internal_comp : voc_accountability {
+
+// Order of data categories
+//  (1)   : DataCategoryOf is a reflexive relation  
+//  (2)   : We assume that all data categories are part of PERSONAL DATA
+//  (3)   : certainly true order
+{
+  ! dc :
+      DataCategoryOf(dc,dc).
+
+  ! dc :
+      DataCategoryOf(dc,PD).
+
+  ! dc1 dc2 : 
+      DataCategoryOf(dc1,dc2) <- 
+              DataCategoryOf_ct(dc1,dc2).
+}
+
+// Organizations owns
+//  (1)   : Components
+//  (2)   : Employees
+{
+  ! org comp : 
+      OrganizationOwns(org,comp) <-
+              ComponentOf(comp) = org.
+              
+  ! org op :
+      OrganizationOwns(org,op) <-
+              EmployeeOf(op) = org.
+}
+
+// User trust relations
+//  (1)   : User trust towards an organization
+//  (2)   : Tranistivity of trust towards trust into entities owned by the
+//          trusted organization
+{
+  ! org :
+      UserTrustEntity(org) <-
+              UserTrustDataPracticeOf(org).
+              
+  ! ent :
+      UserTrustEntity(ent) <-
+          ? org :
+              UserTrustDataPracticeOf(org) &
+              OrganizationOwns(org,ent).
+}
+
+
+// Entities can collect certain data categories from components
+//  (1)   : Entities that are components are limited by the given data
+//          categories they can collect
+//  (2)   : Operators can collect data categories from the component they 
+//          work with
+//  (3)   : Organizations can collect data categories from the components
+//          they own
+{
+  ! comp dc :
+      EntityCanCollect(comp,dc) <-
+          ? dc_parent :
+              DataCategoryOf(dc,dc_parent) &
+              ComponentCanCollect(comp,dc_parent).
+              
+  ! op dc :
+      EntityCanCollect(op,dc) <-
+          ? comp dc_parent :
+              DataCategoryOf(dc,dc_parent) &
+              ComponentCanCollect(comp,dc_parent) &
+              OperatorOf(op,comp).
+              
+  ! org dc : 
+      EntityCanCollect(org,dc) <-
+          ? comp dc_parent :
+              DataCategoryOf(dc,dc_parent) &
+              ComponentCanCollect(comp,dc_parent) &
+              ComponentOf(comp) = org.
+}
+
+// Search for statements about the collection of personal data of users
+{
+  ! stat : 
+      StatementCollectData(stat) <-
+          ? act[Action] :
+            StatementAction(stat) = act &
+            ~(? dst : StatementDestination(stat,dst)).
+}
+
+// Search for statements about forwarding personal data of users
+{
+  ! stat :
+      StatementForwardData(stat) <-
+          ? act[Action] dst :
+              StatementAction(stat) = act &
+              StatementDestination(stat,dst).
+}
+  
+// Search for non-conditional statements about collection of data
+{
+  ! stat dc :
+      NonConditionalCollectDataStatement(stat,dc) <-
+          ? act[Action] perm :            
+              ~(? cond[Condition] : StatementCondition(stat) = cond) &
+              UserPerceptionStatementData(stat,dc,perm) &
+              StatementAction(stat) = act &      
+              ~(? dst : StatementDestination(stat,dst)).
+}
+
+// Search for non-conditional statements about forwarding of data
+{
+  ! stat dc :
+      NonConditionalForwardDataStatement(stat,dc) <-
+          ? act[Action] dst perm :
+              ~(? cond[Condition] : StatementCondition(stat) = cond) &
+              UserPerceptionStatementData(stat,dc,perm) &
+              StatementAction(stat) = act &      
+              StatementDestination(stat,dst).
+}
+
+// Search for non-condtional notification guarantee statements
+{
+  ! stat dc :
+        NonConditionalNotificationGuaranteeStatement(stat,dc) <-
+          ? perm :
+              ~(? cond[Condition] : StatementCondition(stat) = cond) &
+              UserPerceptionStatementData(stat,dc,perm) &
+              StatementNotificationGuarantee(stat).
+}
+
+// Search for non-conditional retention limit statements
+{
+  ! stat dc : 
+      NonConditionalRetentionLimit(stat,dc) <-
+          ? perm dur[Duration] :
+              ~(? cond[Condition] : StatementCondition(stat) = cond) &
+              UserPerceptionStatementData(stat,dc,perm) &
+              StatementRetentionLimit(stat) = dur.
+}
+
+// Search for statements about collecting data without explicit purpose
+{
+  ! stat dc perm :
+      CollectDataForAllPurposeStatement(stat,dc) <-
+          ? act[Action] : 
+              ~(? purp : StatementPurpose(stat,purp)) &
+              UserPerceptionStatementData(stat,dc,perm) &
+              StatementAction(stat) = act &      
+              ~(? dst[Organization] : StatementDestination(stat,dst)).
+}
+
+// Search for statements about forwarding data without explicit purpose
+{
+  ! stat dc perm :
+      ForwardDataForAllPurposeStatement(stat,dc) <-
+          ? act[Action] dst[Organization] : 
+              ~(? purp : StatementPurpose(stat,purp)) &
+              UserPerceptionStatementData(stat,dc,perm) &
+              StatementAction(stat) = act &      
+              StatementDestination(stat,dst).
+}
+  
+  
+// The data categories that are possibly collected based on the user type and
+// his trust perception in entities.
+//  (1)   : Statement is ASSUMED to be TRUE. Intersection between possible 
+//          collected data categories by an entity and the data categories 
+//          that are subject of a statement.
+//  (2)   : Statement is DECLARATIVE. All data categories that are possibly
+//          collected.
+{
+  ! stat dc :
+      UserPerceptionStatementData(stat,dc,ALWAYS) <-
+          ? ent statev :                
+              StatementFrom(stat) = ent &              
+              StatementPermission(stat) = ALWAYS &
+              StatementProof(stat) = statev &              
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              EntityCanCollect(ent,dc) &
+              SubjectOfStatement(stat,dc).
+
+  ! stat dc :
+      UserPerceptionStatementData(stat,dc,ALWAYS) <-
+          ? ent statev :
+              StatementFrom(stat) = ent &              
+              StatementPermission(stat) = ALWAYS &
+              StatementProof(stat) = statev &
+              ~StatementNotificationGuarantee(stat) &
+              ~(? dur[Duration] : StatementRetentionLimit(stat) = dur) &
+              EvidenceMatrix(ent,statev,DECLARED) &
+              EntityCanCollect(ent,dc).
+              
+  ! stat dc :
+      UserPerceptionStatementData(stat,dc,ALWAYS) <-
+          ? ent statev dur[Duration] :
+              StatementFrom(stat) = ent &              
+              StatementPermission(stat) = ALWAYS &
+              StatementProof(stat) = statev &
+              StatementRetentionLimit(stat) = dur &
+              EvidenceMatrix(ent,statev,DECLARED) &
+              SubjectOfStatement(stat,dc).
+              
+  ! stat dc :
+      UserPerceptionStatementData(stat,dc,ALWAYS) <-
+          ? ent statev :
+              StatementFrom(stat) = ent &              
+              StatementPermission(stat) = ALWAYS &
+              StatementProof(stat) = statev &
+              StatementNotificationGuarantee(stat) &
+              EvidenceMatrix(ent,statev,DECLARED) &
+              SubjectOfStatement(stat,dc).
+              
+  ! stat dc :
+      UserPerceptionStatementData(stat,dc,NEVER) <-
+          ? ent statev :
+              StatementFrom(stat) = ent &              
+              StatementPermission(stat) = NEVER &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              SubjectOfStatement(stat,dc).
+            
+  ! stat dc :
+      UserPerceptionStatementData(stat,dc,NEVER) <-
+          ? ent statev :
+              StatementFrom(stat) = ent &              
+              StatementPermission(stat) = NEVER &
+              StatementProof(stat) = statev &
+              EvidenceMatrix(ent,statev,DECLARED) &              
+              EntityCanCollect(ent,dc) &
+              SubjectOfStatement(stat,dc).              
+} 
+
+// Relate the statement with it subject and subject parents
+{
+  ! stat dc :
+      SubjectOfStatement(stat,dc) <-
+          ? dc_parent :
+              DataCategoryOf(dc,dc_parent) &
+              StatementSubject(stat,dc_parent).        
+}    
+
+}
+
+// Statements in GAP are assumed to be TRUE are purely declared depending on
+// the following matrix  
+//
+//  User trust or does not trust organizations data practices = T(O)
+// Statement:       Declared      Logged not Verified     Logged and Verified
+//----------------------------------------------------------------------------
+//    naive user:     all               all                     all
+//    regular user:   T(O)              all                     all
+//    priv. aware:    T(O)              T(O)                    all
+theory theo_usermodel : voc_accountability {
+  {
+    ! ent statev : 
+        EvidenceMatrix(ent, statev, ASSUMED_TRUE) <- 
+                TYPE_OF_USER = NAIVE_USER.
+    
+    ! ent :
+        EvidenceMatrix(ent, DECLARATIVE, ASSUMED_TRUE) <-
+                TYPE_OF_USER = REGULAR_USER & 
+                UserTrustEntity(ent).
+    
+    ! ent :
+        EvidenceMatrix(ent, LOGGED_NOT_VERIFIED, ASSUMED_TRUE) <-
+                TYPE_OF_USER = REGULAR_USER.
+    
+    ! ent : 
+        EvidenceMatrix(ent, LOGGED_AND_VERIFIED, ASSUMED_TRUE) <-
+                TYPE_OF_USER = REGULAR_USER.
+    
+    ! ent : 
+        EvidenceMatrix(ent, DECLARATIVE, ASSUMED_TRUE) <-
+                TYPE_OF_USER = PRIVACY_AWARE_USER &
+                UserTrustEntity(ent).
+            
+    ! ent : 
+        EvidenceMatrix(ent, LOGGED_NOT_VERIFIED, ASSUMED_TRUE) <-
+                TYPE_OF_USER = PRIVACY_AWARE_USER &
+                UserTrustEntity(ent).
+            
+    ! ent :
+        EvidenceMatrix(ent, LOGGED_AND_VERIFIED, ASSUMED_TRUE) <-
+                TYPE_OF_USER = PRIVACY_AWARE_USER.
+                
+    ! ent statev :
+        EvidenceMatrix(ent, statev, DECLARED) <-
+                ~EvidenceMatrix(ent, statev, ASSUMED_TRUE).
+  }
+}
+
+//------------------------------------------------------------------------------
+// Verification of the input model
+//------------------------------------------------------------------------------
+theory theo_verify_input_model : voc_accountability {
+
+//------------------------------------------------------------------------------
+//  Requirements related to entities
+//------------------------------------------------------------------------------
+// An operator operates at least one component
+! op : ? comp : OperatorOf(op,comp).
+  
+// Components collects data from at least one data category, if none 
+// is specified, we assume all 
+! comp : ? dc : ComponentCanCollect(comp,dc).
+
+
+//------------------------------------------------------------------------------
+//  Requirements related to statements
+//------------------------------------------------------------------------------
+
+}
+
+structure struct_accountability : voc_accountability {  
+//----------------------------------------------------------------------------
+// Do not change this part, this is fixed
+//---------------------------------------------------------------------------- 
+
+// Personal data and personal identifiable data are pre-known data categories
+PD = PERSONAL_DATA
+PID = PERSONAL_IDENTIFIABLE_DATA
+
+//----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Section: Personal Data
+//------------------------------------------------------------------------------
+DataCategory = {
+  PERSONAL_DATA; PERSONAL_IDENTIFIABLE_DATA;    // Fixed - do not remove this
+  
+  // Add below specific data categories
+  
+  // General data categories
+  PictureOfIncident;
+  
+  // Body specific data categories
+  FullBodyFace; FullBodyBlurredFace; Gait; Height; Behavior;  
+  
+  // Contextual data
+  Location; Time;
+}  
+
+DataCategoryOf_ct = {
+  PERSONAL_IDENTIFIABLE_DATA, PERSONAL_DATA;    // Fixed - do not remove this
+  
+  // Add below specific data category relationships  
+  FullBodyBlurredFace,PictureOfIncident;
+  FullBodyFace,PictureOfIncident;
+  Gait,PictureOfIncident;
+  Height,PictureOfIncident;
+  Behavior,PictureOfIncident;      
+}
+
+//------------------------------------------------------------------------------
+// Section: Entities, Stakeholders, Components, ...
+//------------------------------------------------------------------------------
+Entity = {  
+  // Non crusial parties for scenario
+  LegalAuthority;
+
+  // Organizations
+  RailwayCompany; SecurityCompany;
+  
+  // Components of railway company
+  Camera; Monitor; ImageDatabase;
+  
+  // Components of security company
+  MobileDevice; StatusDatabase;
+    
+  // Operators employed by railway company
+  ImageProcessor;
+  
+  // Operators employed by security company
+  Guard; StatusProcessor;
+}
+
+Stakeholder = {  
+
+  // Organizations  
+  RailwayCompany; SecurityCompany; LegalAuthority;
+  
+  // Operators  
+  ImageProcessor; Guard; StatusProcessor;
+}
+
+Component = {
+  Camera; Monitor; ImageDatabase; MobileDevice; StatusDatabase;
+}
+
+Organization = {
+  RailwayCompany; SecurityCompany; LegalAuthority;
+}
+
+Operator = {
+  ImageProcessor; Guard; StatusProcessor;
+}
+
+ComponentOf = {  
+  Camera->RailwayCompany; 
+  Monitor->RailwayCompany; 
+  ImageDatabase->RailwayCompany;
+  MobileDevice->SecurityCompany;
+  StatusDatabase->SecurityCompany;
+}
+
+EmployeeOf = {
+  ImageProcessor->RailwayCompany;
+  Guard->SecurityCompany;
+  StatusProcessor->SecurityCompany;
+}
+
+OperatorOf = {
+  ImageProcessor,ImageDatabase;
+  Guard,Monitor; Guard,MobileDevice;
+  StatusProcessor,StatusDatabase;
+}
+
+ComponentCanCollect = {
+  Camera,PictureOfIncident; Camera,FullBodyFace; 
+  Camera,FullBodyBlurredFace;
+  Camera,Gait; Camera,Height; Camera,Behavior; 
+  
+  Monitor,PictureOfIncident; Monitor,FullBodyFace; 
+  Monitor,FullBodyBlurredFace; 
+  Monitor,Gait; Monitor,Height; Monitor,Behavior;
+  
+  ImageDatabase,PictureOfIncident; ImageDatabase,FullBodyFace; 
+  ImageDatabase,FullBodyBlurredFace; 
+  ImageDatabase,Gait; ImageDatabase,Height; ImageDatabase,Behavior;  
+  ImageDatabase,Time; ImageDatabase,Location;
+  
+  StatusDatabase,Location; StatusDatabase,Time;
+  
+  MobileDevice,Location; MobileDevice,Time;
+}
+
+//------------------------------------------------------------------------------
+// Section: Statements
+//------------------------------------------------------------------------------
+
+Statement = {
+  // Statements railway company
+  StatR1; StatR2; StatR3; StatR4;
+  
+  // Statements camera
+  StatC1;
+  
+  // Statements monitor
+  StatM1;
+  
+  // Statements image database
+  StatI1; StatI2; StatI3; StatI4;
+  
+  // Statements security company
+  StatS1; StatS2;
+  
+  // Statements mobile device
+  StatO1;
+  
+  // Statements status database
+  StatD1; StatD2; StatD3;
+}
+
+Purpose = {
+  Evidence; Safety; Commerce; Identification;
+}
+
+Condition = {
+  NoLegalInvestigation;  RequestLegalAuthority;
+}
+
+Action = {
+  Collecting; Monitoring; 
+  Storing; Forwarding; Accessing;
+}
+
+Duration = {
+  30; 60; 90;
+}
+
+StatementFrom = {
+  StatR1->RailwayCompany; StatR2->RailwayCompany; 
+  StatR3->RailwayCompany; StatR4->RailwayCompany;
+  StatC1->RailwayCompany; 
+  StatM1->RailwayCompany;
+  StatI1->RailwayCompany; StatI2->RailwayCompany;
+  StatI3->RailwayCompany; StatI4->RailwayCompany;
+  
+  StatS1->SecurityCompany; StatS2->SecurityCompany;
+  StatO1->SecurityCompany; 
+  StatD1->SecurityCompany; StatD2->SecurityCompany;
+  StatD3->SecurityCompany;
+}
+
+StatementSubject = {
+  // Subjects of railway company's statements
+  StatR1,FullBodyFace; StatR1,FullBodyBlurredFace; StatR1,Gait;
+  StatR1,Height; StatR1,Behavior;  
+  StatR2,PictureOfIncident;  
+  StatR3,PictureOfIncident;
+  StatR4,PERSONAL_DATA;
+  
+  // Subjects of camera's statements
+  StatC1,FullBodyBlurredFace; StatC1,FullBodyFace; StatC1,Gait;
+  StatC1,Height; StatC1,Behavior;
+  
+  // Subjects of monitor's statements
+  StatM1,FullBodyBlurredFace; StatM1,Gait; StatM1,Height; StatM1,Behavior;
+  
+  // Subjects of image database's statements
+  StatI1,FullBodyFace;
+  StatI2,FullBodyFace;  
+  StatI3,FullBodyFace; StatI3,Gait; StatI3,Height; StatI3,Behavior;  
+  StatI4,PictureOfIncident;
+  
+  // Subjects of security company's statements
+  StatS1,Time; StatS1,Location;
+  StatS2,Time; StatS2,Location;
+  
+  // Subjects of mobile device's statements
+  StatO1,Time; StatO1,Location;
+  
+  // Subje
+  StatD1,Time; StatD1,Location;
+  StatD2,Time; StatD2,Location;
+  StatD3,Time; StatD3,Location;
+}
+
+StatementPurpose = {
+  StatR1,Safety;
+  StatR2,Evidence;
+  StatR3,Commerce;  
+  StatC1,Safety;
+  StatM1,Safety;
+  StatI1,Evidence;  
+  StatI3,Identification;
+  StatS1,Evidence;  
+  StatS2,Evidence;  
+  StatO1,Evidence;
+  StatD1,Evidence;  
+  StatD2,Evidence;  
+}
+
+StatementCondition = {  
+  StatR2->RequestLegalAuthority;    
+  StatI2->RequestLegalAuthority;
+  StatI4->NoLegalInvestigation;  
+  StatS2->RequestLegalAuthority;  
+  StatD3->NoLegalInvestigation;
+}
+
+StatementPermission = {
+  StatR1->ALWAYS;
+  StatR2->ALWAYS;
+  StatR3->NEVER;
+  StatR4->ALWAYS;
+  StatC1->ALWAYS;
+  StatM1->ALWAYS;
+  StatI1->ALWAYS;
+  StatI2->ALWAYS;
+  StatI3->NEVER;
+  StatI4->ALWAYS;
+  StatS1->ALWAYS;
+  StatS2->ALWAYS;
+  StatO1->ALWAYS;
+  StatD1->ALWAYS;
+  StatD2->ALWAYS;
+  StatD3->ALWAYS;
+}
+
+StatementAction = {
+  StatR1->Collecting;
+  StatR2->Forwarding;
+  StatR3->Collecting;  
+  StatC1->Collecting;
+  StatM1->Monitoring;
+  StatI1->Storing;
+  StatI2->Accessing;
+  StatI3->Storing;
+  StatS1->Collecting;
+  StatS2->Forwarding;
+  StatO1->Collecting;
+  StatD1->Storing;
+  StatD2->Accessing;  
+}
+
+StatementDestination = {  
+  StatR2,LegalAuthority;      
+  StatS2,LegalAuthority;      
+}
+
+StatementRetentionLimit = {  
+  StatR4,60;
+  StatI4,30;
+  StatD3,90;
+}
+
+StatementNotificationGuarantee = {
+  
+}
+
+StatementProof = {
+  StatR1->LOGGED_NOT_VERIFIED;
+  StatR2->DECLARATIVE;
+  StatR3->LOGGED_NOT_VERIFIED;
+  StatR4->LOGGED_NOT_VERIFIED;
+  StatC1->LOGGED_NOT_VERIFIED;
+  StatM1->LOGGED_NOT_VERIFIED;
+  StatI1->LOGGED_NOT_VERIFIED;
+  StatI2->LOGGED_AND_VERIFIED;
+  StatI3->LOGGED_AND_VERIFIED;
+  StatI4->DECLARATIVE;
+  StatS1->DECLARATIVE;
+  StatS2->LOGGED_NOT_VERIFIED;
+  StatO1->LOGGED_AND_VERIFIED;
+  StatD1->LOGGED_AND_VERIFIED;
+  StatD2->LOGGED_AND_VERIFIED;
+  StatD3->LOGGED_AND_VERIFIED;
+}
+
+//------------------------------------------------------------------------------
+// Section: User model
+//------------------------------------------------------------------------------
+TYPE_OF_USER = NAIVE_USER    // NAIVE_USER / REGULAR_USER / PRIVACY_AWARE_USER
+
+UserTrustDataPracticeOf = {
+}
+
+}
+
+include <mx>
+
+procedure main() {
+  
+  print("--------------------------------------------------------------------------------")
+  print("   Verfiy the input model")
+  print("") 
+  print(os.date("   %c"))
+  print("--------------------------------------------------------------------------------")
+  
+  stdoptions.nbmodels = 10
+  
+  // set to false for optimization over a term
+  option_modelexpand = true
+  
+  satisfiable = sat(theo_verify_input_model,struct_accountability)
+  
+  if satisfiable then  
+    
+    print("Input structure satisfiable to given theory\n")    
+        
+    theo = theo_general_internal_comp;
+    theo = merge(theo,theo_usermodel);
+    theo = merge(theo,theo_gap);
+    
+    // Queries for analyzing accountability
+    // theo = merge(theo,theo_query1);
+    // theo = merge(theo,theo_query2);
+    
+    print("--------------------------------------------------------------------------------")
+    print("   Precalculated structure")
+    print("--------------------------------------------------------------------------------")    
+  
+    // precalculation of structure
+    precalc = calculatedefinitions(theo,struct_accountability)
+    print(precalc)  
+ 
+    print("--------------------------------------------------------------------------------")
+    print("   Models found")
+    print("--------------------------------------------------------------------------------")
+
+    
+    local x = os.clock()      
+    
+    if(option_modelexpand) then
+      // model expansion inference
+      model = modelexpand(theo,precalc)     
+    else
+      // minimization inference - not used      
+    end
+    
+    local elapsed_time = os.clock() - x
+    print(string.format("Elapsed time to find models : %.2f sec\n", elapsed_time))
+    
+    printmodels(model)   
+  
+  else    
+    print("Input struture not satisfiable\n")
+  end
+}
+
+
+
+
