@@ -104,7 +104,7 @@ UserTrustDataPracticeOf(Organization)
 //------------------------------------------------------------------------------
 // Section: Global Accountability Profile - A WORST-CASE survey for the user
 //------------------------------------------------------------------------------
-type GAPEvidence constructed from { DECLARED, ASSUMED_TRUE }
+type GAPEvidence constructed from { UNCERTAIN, GUARANTEED }
 
 GAPCollectData(DataCategory)
 GAPCollectDataAction(DataCategory, Action)
@@ -209,23 +209,23 @@ theory theo_gap : voc_accountability {
 
 {
   ! dc :
-      GAPCollectDataProof(dc,DECLARED) <-
+      GAPCollectDataProof(dc,UNCERTAIN) <-
           ? stat ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &
               StatementCollectData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED).
+              EvidenceMatrix(ent,statev,UNCERTAIN).
               
   ! dc :  
-      GAPCollectDataProof(dc,ASSUMED_TRUE) <-
+      GAPCollectDataProof(dc,GUARANTEED) <-
           ? stat ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &
               StatementCollectData(stat) &              
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
-              ~GAPCollectDataProof(dc,DECLARED).
+              EvidenceMatrix(ent,statev,GUARANTEED) &
+              ~GAPCollectDataProof(dc,UNCERTAIN).
 }
 
 
@@ -273,22 +273,22 @@ theory theo_gap : voc_accountability {
 
 {
   ! dc :
-      GAPForwardDataProof(dc,DECLARED) <-
+      GAPForwardDataProof(dc,UNCERTAIN) <-
           ? stat ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &              
               StatementForwardData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED).
+              EvidenceMatrix(ent,statev,UNCERTAIN).
   ! dc :
-      GAPForwardDataProof(dc,ASSUMED_TRUE) <-
+      GAPForwardDataProof(dc,GUARANTEED) <-
           ? stat ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &              
               StatementForwardData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
-              ~GAPForwardDataProof(dc,DECLARED).  
+              EvidenceMatrix(ent,statev,GUARANTEED) &
+              ~GAPForwardDataProof(dc,UNCERTAIN).  
 }
 
 
@@ -330,25 +330,25 @@ theory theo_gap : voc_accountability {
 
 {
   ! dc :
-      GAPNeverCollectDataProof(dc,DECLARED) <-
+      GAPNeverCollectDataProof(dc,UNCERTAIN) <-
           ? stat ent statev :
               GAPNeverCollectData(dc) &
               UserPerceptionStatementData(stat,dc,NEVER) &
               StatementCollectData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED).
+              EvidenceMatrix(ent,statev,UNCERTAIN).
               
   ! dc :
-      GAPNeverCollectDataProof(dc,ASSUMED_TRUE) <-
+      GAPNeverCollectDataProof(dc,GUARANTEED) <-
           ? stat ent statev :
               GAPNeverCollectData(dc) &
               UserPerceptionStatementData(stat,dc,NEVER) &
               StatementCollectData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
-              ~GAPNeverCollectDataProof(dc,DECLARED).
+              EvidenceMatrix(ent,statev,GUARANTEED) &
+              ~GAPNeverCollectDataProof(dc,UNCERTAIN).
 }
 
 //------------------------------------------------------------------------------
@@ -386,25 +386,25 @@ theory theo_gap : voc_accountability {
 
 {
   ! dc :
-      GAPNeverForwardDataProof(dc,DECLARED) <-
+      GAPNeverForwardDataProof(dc,UNCERTAIN) <-
           ? stat dst[Stakeholder] statev ent :
               GAPNeverForwardDataTo(dc,dst) &
               UserPerceptionStatementData(stat,dc,NEVER) &
               StatementForwardData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED).
+              EvidenceMatrix(ent,statev,UNCERTAIN).
               
   ! dc :
-      GAPNeverForwardDataProof(dc,ASSUMED_TRUE) <-
+      GAPNeverForwardDataProof(dc,GUARANTEED) <-
           ? stat dst[Stakeholder] ent statev :
               GAPNeverForwardDataTo(dc,dst) &
               UserPerceptionStatementData(stat,dc,NEVER) &
               StatementForwardData(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
-              ~GAPNeverForwardDataProof(dc,DECLARED).
+              EvidenceMatrix(ent,statev,GUARANTEED) &
+              ~GAPNeverForwardDataProof(dc,UNCERTAIN).
 }
 
 //------------------------------------------------------------------------------
@@ -430,23 +430,23 @@ theory theo_gap : voc_accountability {
 
 {
   ! dc : 
-      GAPNotificationGuaranteeProof(dc,DECLARED) <-
+      GAPNotificationGuaranteeProof(dc,UNCERTAIN) <-
           ? stat ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &
               StatementNotificationGuarantee(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED).
+              EvidenceMatrix(ent,statev,UNCERTAIN).
               
   ! dc :
-      GAPNotificationGuaranteeProof(dc,ASSUMED_TRUE) <-
+      GAPNotificationGuaranteeProof(dc,GUARANTEED) <-
           ? stat ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &
               StatementNotificationGuarantee(stat) &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
-              ~GAPNotificationGuaranteeProof(dc,DECLARED).
+              EvidenceMatrix(ent,statev,GUARANTEED) &
+              ~GAPNotificationGuaranteeProof(dc,UNCERTAIN).
 }
 
 //------------------------------------------------------------------------------
@@ -474,23 +474,23 @@ theory theo_gap : voc_accountability {
 
 {
   ! dc :
-      GAPRetentionLimitProof(dc,DECLARED) <-
+      GAPRetentionLimitProof(dc,UNCERTAIN) <-
           ? stat dur[Duration] ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &
               StatementRetentionLimit(stat) = dur &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED).
+              EvidenceMatrix(ent,statev,UNCERTAIN).
        
   ! dc :
-      GAPRetentionLimitProof(dc,ASSUMED_TRUE) <-
+      GAPRetentionLimitProof(dc,GUARANTEED) <-
           ? stat dur[Duration] ent statev :
               UserPerceptionStatementData(stat,dc,ALWAYS) &
               StatementRetentionLimit(stat) = dur &
               StatementFrom(stat) = ent &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
-              ~GAPRetentionLimitProof(dc,DECLARED).
+              EvidenceMatrix(ent,statev,GUARANTEED) &
+              ~GAPRetentionLimitProof(dc,UNCERTAIN).
 }
               
 }
@@ -670,7 +670,7 @@ theory theo_general_internal_comp : voc_accountability {
               StatementFrom(stat) = ent &              
               StatementPermission(stat) = ALWAYS &
               StatementProof(stat) = statev &              
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              EvidenceMatrix(ent,statev,GUARANTEED) &
               EntityCanCollect(ent,dc) &
               SubjectOfStatement(stat,dc).
 
@@ -682,7 +682,7 @@ theory theo_general_internal_comp : voc_accountability {
               StatementProof(stat) = statev &
               ~StatementNotificationGuarantee(stat) &
               ~(? dur[Duration] : StatementRetentionLimit(stat) = dur) &
-              EvidenceMatrix(ent,statev,DECLARED) &
+              EvidenceMatrix(ent,statev,UNCERTAIN) &
               EntityCanCollect(ent,dc).
               
   ! stat dc :
@@ -692,7 +692,7 @@ theory theo_general_internal_comp : voc_accountability {
               StatementPermission(stat) = ALWAYS &
               StatementProof(stat) = statev &
               StatementRetentionLimit(stat) = dur &
-              EvidenceMatrix(ent,statev,DECLARED) &
+              EvidenceMatrix(ent,statev,UNCERTAIN) &
               SubjectOfStatement(stat,dc).
               
   ! stat dc :
@@ -702,7 +702,7 @@ theory theo_general_internal_comp : voc_accountability {
               StatementPermission(stat) = ALWAYS &
               StatementProof(stat) = statev &
               StatementNotificationGuarantee(stat) &
-              EvidenceMatrix(ent,statev,DECLARED) &
+              EvidenceMatrix(ent,statev,UNCERTAIN) &
               SubjectOfStatement(stat,dc).
               
   ! stat dc :
@@ -711,7 +711,7 @@ theory theo_general_internal_comp : voc_accountability {
               StatementFrom(stat) = ent &              
               StatementPermission(stat) = NEVER &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,ASSUMED_TRUE) &
+              EvidenceMatrix(ent,statev,GUARANTEED) &
               SubjectOfStatement(stat,dc).
             
   ! stat dc :
@@ -720,7 +720,7 @@ theory theo_general_internal_comp : voc_accountability {
               StatementFrom(stat) = ent &              
               StatementPermission(stat) = NEVER &
               StatementProof(stat) = statev &
-              EvidenceMatrix(ent,statev,DECLARED) &              
+              EvidenceMatrix(ent,statev,UNCERTAIN) &              
               EntityCanCollect(ent,dc) &
               SubjectOfStatement(stat,dc).              
 } 
@@ -748,39 +748,39 @@ theory theo_general_internal_comp : voc_accountability {
 theory theo_usermodel : voc_accountability {
   {
     ! ent statev : 
-        EvidenceMatrix(ent, statev, ASSUMED_TRUE) <- 
+        EvidenceMatrix(ent, statev, GUARANTEED) <- 
                 TYPE_OF_USER = NAIVE_USER.
     
     ! ent :
-        EvidenceMatrix(ent, DECLARATIVE, ASSUMED_TRUE) <-
+        EvidenceMatrix(ent, DECLARATIVE, GUARANTEED) <-
                 TYPE_OF_USER = REGULAR_USER & 
                 UserTrustEntity(ent).
     
     ! ent :
-        EvidenceMatrix(ent, LOGGED_NOT_VERIFIED, ASSUMED_TRUE) <-
+        EvidenceMatrix(ent, LOGGED_NOT_VERIFIED, GUARANTEED) <-
                 TYPE_OF_USER = REGULAR_USER.
     
     ! ent : 
-        EvidenceMatrix(ent, LOGGED_AND_VERIFIED, ASSUMED_TRUE) <-
+        EvidenceMatrix(ent, LOGGED_AND_VERIFIED, GUARANTEED) <-
                 TYPE_OF_USER = REGULAR_USER.
     
     ! ent : 
-        EvidenceMatrix(ent, DECLARATIVE, ASSUMED_TRUE) <-
+        EvidenceMatrix(ent, DECLARATIVE, GUARANTEED) <-
                 TYPE_OF_USER = PRIVACY_AWARE_USER &
                 UserTrustEntity(ent).
             
     ! ent : 
-        EvidenceMatrix(ent, LOGGED_NOT_VERIFIED, ASSUMED_TRUE) <-
+        EvidenceMatrix(ent, LOGGED_NOT_VERIFIED, GUARANTEED) <-
                 TYPE_OF_USER = PRIVACY_AWARE_USER &
                 UserTrustEntity(ent).
             
     ! ent :
-        EvidenceMatrix(ent, LOGGED_AND_VERIFIED, ASSUMED_TRUE) <-
+        EvidenceMatrix(ent, LOGGED_AND_VERIFIED, GUARANTEED) <-
                 TYPE_OF_USER = PRIVACY_AWARE_USER.
                 
     ! ent statev :
-        EvidenceMatrix(ent, statev, DECLARED) <-
-                ~EvidenceMatrix(ent, statev, ASSUMED_TRUE).
+        EvidenceMatrix(ent, statev, UNCERTAIN) <-
+                ~EvidenceMatrix(ent, statev, GUARANTEED).
   }
 }
 
