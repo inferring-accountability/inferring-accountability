@@ -51,6 +51,17 @@ I.2 	V 	Access to stored pictures of travelers' full bodies with non-blurred fac
 I.3 	V 	Images of travelers' full bodies with non-blurred faces, gaits, heights, and behavior are never processed for the purpose of identification.
 I.4 	D 	Stored images are deleted after 30 days, unless they are being used as evidence in legal cases. 
 
+
+(S)ecurity Company, M(O)bile Device, Status (D)atabase Statements
+(D): Declarative statement, (L): Logged statement, (V): Logged and verified statement
+
+S.1 	D 	Time and location of incidents are collected as evidence.
+S.2 	L 	Time and location of incidents are only forwarded to legal authorities upon request.
+O.1 	V 	Surveillance guards collect time and location as evidence in case of incidents.
+D.1 	V 	Time and location of incidents are collected as evidence.
+D.2 	V 	Access to stored time and location of incidents is granted to status processors for gathering evidence.
+D.3 	V 	The time and location of incidents are deleted after 90 days unless they are being used as legal evidence. 
+
 --------------------------------
 Models
 --------------------------------
