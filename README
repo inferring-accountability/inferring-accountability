@@ -1,3 +1,15 @@
+This is the companion code to the following paper:
+
+Inferring Accountability from Trust Perceptions — Koen Decroix, Denis Butin, Joachim 
+Jansen and Vincent Naessens — 10th International Conference on Information Systems 
+Security (ICISS 2014), Springer LNCS.
+
+http://link.springer.com/chapter/10.1007%2F978-3-319-13841-1_5
+
+----------------------------------------------------------------
+General Description
+----------------------------------------------------------------
+
 Opaque communications between groups of data processors leave individuals out of touch 
 with the circulation and use of their personal information. Empowering individuals in 
 this regard requires supplying them — or auditors on their behalf — with clear data 
@@ -13,9 +25,9 @@ declared and proven data handling practices for an entire organization.
 
 This project is realized in IDP 3 (http://dtai.cs.kuleuven.be/krr/software/idp).
 
---------------------------------
+----------------------------------------------------------------
 Camera Surveillance Scenario
---------------------------------
+----------------------------------------------------------------
 
 To illustrate the model, we consider the scenario of video camera surveillance in a 
 railway station. Since individuals are filmed by cameras, the collected categories 
@@ -62,9 +74,9 @@ D.1 	V 	Time and location of incidents are collected as evidence.
 D.2 	V 	Access to stored time and location of incidents is granted to status processors for gathering evidence.
 D.3 	V 	The time and location of incidents are deleted after 90 days unless they are being used as legal evidence. 
 
---------------------------------
+----------------------------------------------------------------
 Models
---------------------------------
+----------------------------------------------------------------
 
 The scenario is modeled for 3 different types of user, namely:
 
