@@ -1,0 +1,40 @@
+Opaque communications between groups of data processors leave individuals out of touch with the circulation and use of 
+their personal information. Empowering individuals in this regard requires supplying them — or auditors on their behalf — 
+with clear data handling guarantees. We introduce an inference model providing individuals with global (organization-wide) 
+accountability guarantees which take into account user expectations and varying levels of usage evidence, such as data 
+handling logs. Our model is implemented in the IDP knowledge base system and demonstrated with the scenario of a 
+surveillance infrastructure used by a railroad company. We show that it is flexible enough to be adapted to any use case 
+involving communicating stakeholders for which a trust hierarchy is defined. Via auditors acting for them, individuals can 
+obtain global accountability guarantees, providing them with a trust-dependent synthesis of declared and proven data 
+handling practices for an entire organization.
+
+This project is realized in IDP 3 (http://dtai.cs.kuleuven.be/krr/software/idp).
+
+--------------------------------
+Camera Surveillance Scenario
+--------------------------------
+
+To illustrate the model, we consider the scenario of video camera surveillance in a railway station. Since individuals are 
+filmed by cameras, the collected categories of personal data are related to images (in some cases, cameras also record 
+sound). Several categories of personal data can be inferred from camera recordings, such as dentification through face 
+detection, gait recognition, behavioral tracking and many others. Signs inform passersby that the Railway Company 
+installed Cameras for Safety surveillance. These record images and provision the railway’s Monitors in the control room 
+with real-time video feeds containing Blurred Faces and Gaits of travelers. Furthermore, detailed images of individuals’ 
+Full Body and Gait are stored in the railway’s Image Database serving as Evidence in legal investigations. Only 
+authorized Image Processors employed by the railway company have access to it. Additionally, surveillance Guards 
+employed by a third-party Security Company patrol in the station. They are authorized to view real-time images on the 
+monitors, and carry a Mobile Device for registering Contextual Data (e.g. time and location) in case of incidents. These 
+devices are connected with the Status Database, property of the security company. It is only accessible for the security 
+company’s Status Processors upon request of legal institutions for collecting Evidence. The trusted auditor (acting on 
+behalf of a filmed individual) is external to the model and we focus on data handling statements from the entities 
+collecting personal data. 
+
+--------------------------------
+Models
+--------------------------------
+
+The scenario is modeled for 3 different types of user, namely:
+
+    Model for a naive user;
+    Model for a regular user;
+    Model for a privacy-aware user.
