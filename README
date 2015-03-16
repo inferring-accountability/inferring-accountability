@@ -41,25 +41,25 @@ focus on data handling statements from the entities collecting personal data.
 (D): Declarative statement, (L): Logged statement, (V): Logged and verified statement
 
 R.1 	L 	Pictures of travelers' full bodies with blurred and non-blurred faces, 
-            gaits, heights, and behavior are recorded for incident detection.
+                        gaits, heights, and behavior are recorded for incident detection.
 R.2 	D 	Collected pictures containing evidence of incidents can be forwarded to 
-            legal authorities upon their request.
+                        legal authorities upon their request.
 R.3 	L 	Pictures are never collected for commercial purposes.
 R.4 	L 	The maximal retention time for any category of collected personal data is 
-            60 days.
+                        60 days.
 C.1 	L 	Cameras in the station record full bodies with blurred and non-blurred 
-            faces, gaits, heights, and behaviors of travelers for incident detection 
-            purposes.
+                        faces, gaits, heights, and behaviors of travelers for incident detection 
+                        purposes.
 M.1 	L 	Guards monitor in real-time full bodies with blurred faces, gaits, heights, 
-            and behaviors of travelers in the station for incident detection purposes.
+                        and behaviors of travelers in the station for incident detection purposes.
 I.1 	L 	Pictures of travelers' full bodies with non-blurred faces are stored as 
-            evidence of possible incidents.
+                        evidence of possible incidents.
 I.2 	V 	Access to stored pictures of travelers' full bodies with non-blurred faces 
-            is only granted to the image processor upon request of the legal authorities.
+                        is only granted to the image processor upon request of the legal authorities.
 I.3 	V 	Images of travelers' full bodies with non-blurred faces, gaits, heights, 
-            and behavior are never processed for the purpose of identification.
+                        and behavior are never processed for the purpose of identification.
 I.4 	D 	Stored images are deleted after 30 days, unless they are being used as 
-            evidence in legal cases. 
+                        evidence in legal cases. 
 
 --------------------------------
 Models
