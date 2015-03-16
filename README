@@ -80,6 +80,6 @@ Models
 
 The scenario is modeled for 3 different types of user, namely:
 
-    Model for a naive user;
-    Model for a regular user;
-    Model for a privacy-aware user.
+    Model for a naive user (UsermodelA_idp_input.idp). Results (IDP output format): UsermodelA_idp_output.o
+    Model for a regular user (UsermodelB_idp_input.idp); Results (IDP output format): UsermodelB_idp_output.o
+    Model for a privacy-aware user (UsermodelB_idp_input.idp); Results (IDP output format): UsermodelC_idp_output.o
